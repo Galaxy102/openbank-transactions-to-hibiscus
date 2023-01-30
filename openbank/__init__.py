@@ -54,7 +54,7 @@ class OpenbankTransactionLoader:
     @staticmethod
     def load_transactions_from_html(file_name: str) -> pandas.DataFrame:
         # Die Excel-Datei ist eigentlich eine HTML-Datei
-        sheet: pandas.DataFrame = pandas.read_html(file_name, skiprows=10, header=0, decimal=",")[0]
+        sheet: pandas.DataFrame = pandas.read_html(file_name, skiprows=10, header=0, thousands=".", decimal=",")[0]
         # Die letzte Zeile wird fehlerhaft eingelesen
         sheet = sheet[[
             OpenbankTransactionHeaderFields.DATUM,
