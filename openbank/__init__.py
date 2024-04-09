@@ -8,19 +8,19 @@ class _OpenbankTransactionRegex:
     @classmethod
     def __init__(cls):
         cls.GEGENKONTO_UEBERWEISUNG = re.compile(
-            r"ÜBERWEISUNG(?: ZUGUNSTEN)? VON ([\w ]+),? VERWENDUNGSZWECK [\w /?:().,'+-]*"
+            r"[?Ü]BERWEISUNG(?: ZUGUNSTEN)? VON ([?\w ]+),? VERWENDUNGSZWECK [\w /?:().,'+-]*"
         )
 
         # Charset aus
         # https://www.hettwer-beratung.de/sepa-spezialwissen/sepa-technische-anforderungen/sepa-verwendungszweck/
         _VERWENDUNGSZWECK_UEBERWEISUNG = re.compile(
-            r"ÜBERWEISUNG(?: ZUGUNSTEN)? VON [\w ]+,? VERWENDUNGSZWECK ([\w /?:().,'+-]*)"
+            r"[?Ü]BERWEISUNG(?: ZUGUNSTEN)? VON [?\w ]+,? VERWENDUNGSZWECK ([\w /?:().,'+-]*)"
         )
         _VERWENDUNGSZWECK_GELDAUTOMAT = re.compile(
-            r"(VERFÜGUNG GELDAUTOMAT AM \d{4}-\d{2}-\d{2}), KARTENNUMMER: \d{16}, GEBÜHR: [\d,]+"
+            r"(VERF[?Ü]GUNG GELDAUTOMAT AM \d{4}-\d{2}-\d{2}), KARTENNUMMER: \d{16}, GEB[?Ü]HR: [\d,]+"
         )
         _VERWENDUNGSZWECK_KARTENZAHLUNG = re.compile(
-            r"KAUF GETÄTIGT IN ([\w .,*']+) KARTEN : \d{16} AM \d{4}-\d{2}-\d{2}"
+            r"KAUF GET[?Ä]TIGT IN ([\w .,*']+) KARTEN : \d{16} AM \d{4}-\d{2}-\d{2}"
         )
         _VERWENDUNGSZWECK_ZINSEN = re.compile(
             r"(ABRECHNUNG KONTO) \d{3} \d{4} \d{4} \d{3} \d{7}"
