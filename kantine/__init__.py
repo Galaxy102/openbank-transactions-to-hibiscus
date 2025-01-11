@@ -16,8 +16,7 @@ class KantineTransactionLoader:
         sheet: pandas.DataFrame = pandas.read_csv(file_name, sep=";", decimal=",")
 
         sheet[KantineTransactionHeaderFields.VALUTA] = pandas.to_datetime(
-            sheet[KantineTransactionHeaderFields.VALUTA],
-            dayfirst=True
+            sheet[KantineTransactionHeaderFields.VALUTA]
         )
 
         sheet[KantineTransactionHeaderFields.GEGENKONTO] = "Robotron Kantine"
