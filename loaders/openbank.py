@@ -2,6 +2,8 @@ import re
 
 import pandas
 
+from . import TransactionLoader
+
 
 # Reguläre Ausdrücke zum Parsen des Feldes "Verwendungszweck"
 class _OpenbankTransactionRegex:
@@ -50,9 +52,10 @@ class OpenbankTransactionHeaderFields:
     CUSTOM_HELPER = "Helper"
 
 
-class OpenbankTransactionLoader:
+class OpenbankTransactionLoader(TransactionLoader):
+
     @staticmethod
-    def load_transactions_from_html(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
         # Die Excel-Datei ist eigentlich eine HTML-Datei
         sheet: pandas.DataFrame = pandas.read_html(file_name, skiprows=10, header=0, thousands=".", decimal=",")[0]
         # Die letzte Zeile wird fehlerhaft eingelesen

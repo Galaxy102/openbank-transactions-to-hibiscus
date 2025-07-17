@@ -5,6 +5,8 @@ from typing import Literal, List
 import pandas
 from bs4 import BeautifulSoup, Tag
 
+from . import TransactionLoader
+
 
 @dataclass
 class TransactionData:
@@ -23,9 +25,9 @@ class HanseaticTransactionHeaderFields:
     GEGENKONTO = "Gegenkonto"
 
 
-class HanseaticTransactionLoader:
+class HanseaticTransactionLoader(TransactionLoader):
     @staticmethod
-    def load_transactions_from_html(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
 
         with open(file_name) as fp:
             soup = BeautifulSoup(fp, 'html.parser')

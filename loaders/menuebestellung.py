@@ -1,5 +1,7 @@
 import pandas
 
+from . import TransactionLoader
+
 
 class KantineTransactionHeaderFields:
     BON_NR = "Bericht-Nr."
@@ -9,9 +11,9 @@ class KantineTransactionHeaderFields:
     GEGENKONTO = "Gegenkonto"
 
 
-class KantineTransactionLoader:
+class MenuebestellungTransactionLoader(TransactionLoader):
     @staticmethod
-    def load_transactions_from_csv(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
 
         sheet: pandas.DataFrame = pandas.read_csv(file_name, sep=";", decimal=",")
 
@@ -19,7 +21,7 @@ class KantineTransactionLoader:
             sheet[KantineTransactionHeaderFields.VALUTA]
         )
 
-        sheet[KantineTransactionHeaderFields.GEGENKONTO] = "Robotron Kantine"
+        sheet[KantineTransactionHeaderFields.GEGENKONTO] = "Kantine"
 
         # Ausgabe muss umgedreht werden (neueste zuletzt)
         sheet = sheet[::-1]
