@@ -15,8 +15,7 @@ def _guess_loader_from_filename(file_name: str) -> Type[TransactionLoader] | Non
     elif fname.startswith("output"):
         from loaders.menuebestellung import MenuebestellungTransactionLoader as Loader
     elif fname.startswith("activity"):
-        # Amex
-        ...
+        from loaders.amex import AmexTransactionLoader as Loader
     elif fname.startswith("Meine Hanseatic Bank"):
         from loaders.hanseatic import HanseaticTransactionLoader as Loader
 
@@ -27,7 +26,7 @@ def _get_loader_from_shortcode(shortcode: str) -> Type[TransactionLoader] | None
     Loader = None
     match shortcode.lower():
         case "a":
-            ...
+            from loaders.amex import AmexTransactionLoader as Loader
         case "h":
             from loaders.hanseatic import HanseaticTransactionLoader as Loader
         case "m":
