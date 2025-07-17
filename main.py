@@ -1,4 +1,5 @@
 import os.path
+import re
 from typing import Type
 
 from hibiscus import HibiscusFormatter
@@ -18,6 +19,8 @@ def _guess_loader_from_filename(file_name: str) -> Type[TransactionLoader] | Non
         from loaders.amex import AmexTransactionLoader as Loader
     elif fname.startswith("Meine Hanseatic Bank"):
         from loaders.hanseatic import HanseaticTransactionLoader as Loader
+    elif re.match("[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}", fname):
+        from loaders.n26 import N26TransactionLoader as Loader
 
     return Loader
 
@@ -31,6 +34,8 @@ def _get_loader_from_shortcode(shortcode: str) -> Type[TransactionLoader] | None
             from loaders.hanseatic import HanseaticTransactionLoader as Loader
         case "m":
             from loaders.menuebestellung import MenuebestellungTransactionLoader as Loader
+        case "n":
+            from loaders.n26 import N26TransactionLoader as Loader
         case "o":
             from loaders.openbank import OpenbankTransactionLoader as Loader
     return Loader
