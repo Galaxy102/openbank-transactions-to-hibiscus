@@ -10,19 +10,19 @@ class _OpenbankTransactionRegex:
     @classmethod
     def __init__(cls):
         cls.GEGENKONTO_UEBERWEISUNG = re.compile(
-            r"[?Ü]BERWEISUNG(?: ZUGUNSTEN)? VON ([?\w ]+),? VERWENDUNGSZWECK[\w /?:().,'+-]*"
+            r"ÜBERWEISUNG (?:VON|AN) ([?\w ]+)\.? VERWENDUNGSZWECK[\w /?:().,'+-]*"
         )
 
         # Charset aus
         # https://www.hettwer-beratung.de/sepa-spezialwissen/sepa-technische-anforderungen/sepa-verwendungszweck/
         _VERWENDUNGSZWECK_UEBERWEISUNG = re.compile(
-            r"[?Ü]BERWEISUNG(?: ZUGUNSTEN)? VON [?\w ]+,? VERWENDUNGSZWECK ?([\w /?:().,'+-]*)"
+            r"ÜBERWEISUNG (?:VON|AN) [?\w ]+\.? VERWENDUNGSZWECK ?([\w /?:().,'+-]*)"
         )
         _VERWENDUNGSZWECK_GELDAUTOMAT = re.compile(
-            r"(VERF[?Ü]GUNG GELDAUTOMAT AM \d{4}-\d{2}-\d{2}), KARTENNUMMER: \d{16}, GEB[?Ü]HR: [\d,]+"
+            r"(VERFÜGUNG GELDAUTOMAT AM \d{4}-\d{2}-\d{2}), KARTENNUMMER: \d{16}, GEB[?Ü]HR: [\d,]+"
         )
         _VERWENDUNGSZWECK_KARTENZAHLUNG = re.compile(
-            r"KAUF GET[?Ä]TIGT IN ([\w .,*']+) KARTEN : \d{16} AM \d{4}-\d{2}-\d{2}"
+            r"KAUF GETÄTIGT IN ([\w .,*']+) KARTEN : \d{16} AM \d{4}-\d{2}-\d{2}"
         )
         _VERWENDUNGSZWECK_ZINSEN = re.compile(
             r"(ABRECHNUNG KONTO) \d{3} \d{4} \d{4} \d{3} \d{7}"
@@ -57,7 +57,7 @@ class OpenbankTransactionLoader(TransactionLoader):
     @staticmethod
     def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
         # Die Excel-Datei ist eigentlich eine HTML-Datei
-        sheet: pandas.DataFrame = pandas.read_html(file_name, skiprows=10, header=0, thousands=".", decimal=",")[0]
+        sheet: pandas.DataFrame = pandas.read_excel(file_name, skiprows=15, header=0, thousands=".", decimal=",")
         # Die letzte Zeile wird fehlerhaft eingelesen
         sheet = sheet[[
             OpenbankTransactionHeaderFields.DATUM,
@@ -65,15 +65,15 @@ class OpenbankTransactionLoader(TransactionLoader):
             OpenbankTransactionHeaderFields.VERWENDUNGSZWECK,
             OpenbankTransactionHeaderFields.BETRAG,
             OpenbankTransactionHeaderFields.SALDO,
-        ]].drop(sheet.index[-1])
+        ]]
         # Parsen der Datumsfelder
         sheet[OpenbankTransactionHeaderFields.DATUM] = pandas.to_datetime(
             sheet[OpenbankTransactionHeaderFields.DATUM],
-            dayfirst=True
+            format="%d%m%Y"
         )
         sheet[OpenbankTransactionHeaderFields.VALUTA] = pandas.to_datetime(
             sheet[OpenbankTransactionHeaderFields.VALUTA],
-            dayfirst=True
+            format="%d%m%Y"
         )
         # Anlegen einer Hilfsdatenreihe
         sheet[OpenbankTransactionHeaderFields.CUSTOM_HELPER] = sheet[OpenbankTransactionHeaderFields.VERWENDUNGSZWECK]
