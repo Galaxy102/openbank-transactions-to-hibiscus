@@ -25,7 +25,7 @@ class _OpenbankTransactionRegex:
             r"KAUF GETÄTIGT IN ([\w .,*']+) KARTEN : \d{16} AM \d{4}-\d{2}-\d{2}"
         )
         _VERWENDUNGSZWECK_ZINSEN = re.compile(
-            r"(ABRECHNUNG KONTO) \d{3} \d{4} \d{4} \d{3} \d{7}"
+            r"^(ZINSEN|KEST|SOLZ)( [A-Z]{2}\d{2}[A-Z\d]{11,30})?$"
         )
 
         cls.VERWENDUNGSZWECK = re.compile(
