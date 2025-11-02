@@ -21,6 +21,8 @@ def _guess_loader_from_filename(file_name: str) -> Type[TransactionLoader] | Non
         from loaders.hanseatic import HanseaticTransactionLoader as Loader
     elif re.match("[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}", fname):
         from loaders.n26 import N26TransactionLoader as Loader
+    elif re.match("[\\w ]+-[0-9]{8}-[0-9]{6}\\.csv", fname):
+        from loaders.parqet import ParqetTransactionLoader as Loader
 
     return Loader
 
@@ -38,6 +40,8 @@ def _get_loader_from_shortcode(shortcode: str) -> Type[TransactionLoader] | None
             from loaders.n26 import N26TransactionLoader as Loader
         case "o":
             from loaders.openbank import OpenbankTransactionLoader as Loader
+        case "p":
+            from loaders.parqet import ParqetTransactionLoader as Loader
     return Loader
 
 
@@ -49,7 +53,7 @@ if __name__ == '__main__':
     Loader = _guess_loader_from_filename(in_file_name)
     if not Loader:
         print("Could not detect loader to use")
-        Loader = _get_loader_from_shortcode(input("[A]mex [H]anseatic [M]enuebestellung [O]penbank: "))
+        Loader = _get_loader_from_shortcode(input("[A]mex [H]anseatic [M]enuebestellung [O]penbank [P]arqet: "))
 
     data_frame = Loader.load_transactions_from_file(file_name=in_file_name)
 
