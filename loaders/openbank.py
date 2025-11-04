@@ -67,13 +67,15 @@ class OpenbankTransactionLoader(TransactionLoader):
             OpenbankTransactionHeaderFields.SALDO,
         ]]
         # Parsen der Datumsfelder
-        sheet[OpenbankTransactionHeaderFields.DATUM] = pandas.to_datetime(
-            sheet[OpenbankTransactionHeaderFields.DATUM],
-            format="%d%m%Y"
+        sheet[OpenbankTransactionHeaderFields.DATUM] = (
+            sheet[OpenbankTransactionHeaderFields.DATUM]
+            .astype(str).str.zfill(8)   # zero-padding (3112025 = 2025-11-03, not 2025-01-31)
+            .pipe(pandas.to_datetime, format="%d%m%Y")
         )
-        sheet[OpenbankTransactionHeaderFields.VALUTA] = pandas.to_datetime(
-            sheet[OpenbankTransactionHeaderFields.VALUTA],
-            format="%d%m%Y"
+        sheet[OpenbankTransactionHeaderFields.VALUTA] = (
+            sheet[OpenbankTransactionHeaderFields.VALUTA]
+            .astype(str).str.zfill(8)   # zero-padding (3112025 = 2025-11-03, not 2025-01-31)
+            .pipe(pandas.to_datetime, format="%d%m%Y")
         )
         # Anlegen einer Hilfsdatenreihe
         sheet[OpenbankTransactionHeaderFields.CUSTOM_HELPER] = sheet[OpenbankTransactionHeaderFields.VERWENDUNGSZWECK]
