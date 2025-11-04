@@ -22,7 +22,7 @@ class _OpenbankTransactionRegex:
             r"(VERFÜGUNG GELDAUTOMAT AM \d{4}-\d{2}-\d{2}), KARTENNUMMER: \d{16}, GEB[?Ü]HR: [\d,]+"
         )
         _VERWENDUNGSZWECK_KARTENZAHLUNG = re.compile(
-            r"KAUF GETÄTIGT IN ([\w .,*']+) KARTEN : \d{16} AM \d{4}-\d{2}-\d{2}"
+            r"Kauf bei ([\w .,*']+) mit Karte: {2}\*\*\d{4}"
         )
         _VERWENDUNGSZWECK_ZINSEN = re.compile(
             r"^(ZINSEN|KEST|SOLZ)( [A-Z]{2}\d{2}[A-Z\d]{11,30})?$"
