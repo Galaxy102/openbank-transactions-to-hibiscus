@@ -37,11 +37,12 @@ class HanseaticTransactionLoader(TransactionLoader):
         for transaction_month in transactions_by_month:
             for transaction in transaction_month.find_all("div", recursive=False):
                 transaction: Tag
-                transaction_type_tag = transaction.find("h6")
-                receiver_tag = transaction_type_tag.next_sibling
-                reason_tag = receiver_tag.next_sibling
-                date_tag = reason_tag.next_sibling
-                amount_tag = transaction.find(attrs={"data-test-id": "transaction-amount"})
+                transaction_type_tag = transaction.find("div", class_="h6")
+                amount_tag = transaction.find(attrs={"data-test-id": "transaction-amount"}).find("span", attrs={"aria-hidden": "true"})
+                details = transaction.find("div", class_="overflow-hidden")
+                receiver_tag = details.contents[0].find("span", attrs={"aria-hidden": "true"})
+                reason_tag = details.contents[1].find("span", attrs={"aria-hidden": "true"})
+                date_tag = details.contents[2].find("span", attrs={"aria-hidden": "true"})
                 data = TransactionData(
                     transaction_type=transaction_type_tag.text.strip(),
                     receiver=receiver_tag.text.strip(),
