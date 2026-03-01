@@ -10,13 +10,13 @@ class _OpenbankTransactionRegex:
     @classmethod
     def __init__(cls):
         cls.GEGENKONTO_UEBERWEISUNG = re.compile(
-            r"ÜBERWEISUNG (?:VON|AN) ([?\w ]+)\.? VERWENDUNGSZWECK[\w /?:().,'+-]*"
+            r"(?:ECHTZEIT)?ÜBERWEISUNG (?:VON|AN) ([?\w ]+)\.? VERWENDUNGSZWECK[\w /?:().,'+-]*"
         )
 
         # Charset aus
         # https://www.hettwer-beratung.de/sepa-spezialwissen/sepa-technische-anforderungen/sepa-verwendungszweck/
         _VERWENDUNGSZWECK_UEBERWEISUNG = re.compile(
-            r"ÜBERWEISUNG (?:VON|AN) [?\w ]+\.? VERWENDUNGSZWECK ?([\w /?:().,'+-]*)"
+            r"(?:ECHTZEIT)?ÜBERWEISUNG (?:VON|AN) [?\w ]+\.? VERWENDUNGSZWECK ?([\w /?:().,'+-]*)"
         )
         _VERWENDUNGSZWECK_GELDAUTOMAT = re.compile(
             r"(VERFÜGUNG GELDAUTOMAT AM \d{4}-\d{2}-\d{2}), KARTENNUMMER: \d{16}, GEB[?Ü]HR: [\d,]+"
