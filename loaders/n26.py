@@ -17,7 +17,7 @@ class N26TransactionHeaderFields(StrEnum):
 
 class N26TransactionLoader(TransactionLoader):
     @staticmethod
-    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> list[pandas.DataFrame]:
 
         sheet: pandas.DataFrame = pandas.read_csv(file_name, sep=",", decimal=",", usecols=[x for x in N26TransactionHeaderFields])
 
@@ -29,4 +29,4 @@ class N26TransactionLoader(TransactionLoader):
             sheet[N26TransactionHeaderFields.VALUTA]
         )
 
-        return sheet
+        return [sheet]

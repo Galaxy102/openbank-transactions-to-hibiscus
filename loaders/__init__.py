@@ -1,16 +1,18 @@
 import abc
 
 import pandas
+from typing import Iterable
 
 
 class TransactionLoader(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> Iterable[pandas.DataFrame]:
         """
         Load transactions from file
         :param file_name: The file to load (e.g. CSV or HTML)
-        :return: DataFrame with fields to use in Hibiscus. The DataFrame adheres to the following conventions:
+        :return: one or more DataFrames with fields to use in Hibiscus.
+        The DataFrame adheres to the following conventions:
         - Transactions are sorted oldest to newest (newest last)
         - Dates are parsed as dates
         - There is some kind of

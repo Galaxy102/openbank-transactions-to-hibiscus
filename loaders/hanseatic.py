@@ -27,7 +27,7 @@ class HanseaticTransactionHeaderFields:
 
 class HanseaticTransactionLoader(TransactionLoader):
     @staticmethod
-    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> list[pandas.DataFrame]:
 
         with open(file_name) as fp:
             soup = BeautifulSoup(fp, 'html.parser')
@@ -62,4 +62,4 @@ class HanseaticTransactionLoader(TransactionLoader):
         })
         # Ausgabe muss umgedreht werden (neueste zuletzt)
         out = out[::-1]
-        return out
+        return [out]

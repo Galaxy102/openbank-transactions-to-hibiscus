@@ -48,24 +48,25 @@ def _get_loader_from_shortcode(shortcode: str) -> Type[TransactionLoader] | None
 if __name__ == '__main__':
     # Frage Dateinamen zum Kontoauszug im "Excel"-Format ab
     in_file_name = input("Pfad zum Kontoauszug: ")
-    out_file_name = in_file_name + ".csv"
 
     Loader = _guess_loader_from_filename(in_file_name)
     if not Loader:
         print("Could not detect loader to use")
         Loader = _get_loader_from_shortcode(input("[A]mex [H]anseatic [M]enuebestellung [O]penbank [P]arqet: "))
 
-    data_frame = Loader.load_transactions_from_file(file_name=in_file_name)
+    data_frames = Loader.load_transactions_from_file(file_name=in_file_name)
 
-    # Ausgabe zur Kontrolle
-    print(data_frame.to_string())
+    for idx, data_frame in enumerate(data_frames):
+        # Ausgabe zur Kontrolle
+        print(data_frame.to_string())
 
-    # Ausgabe als CSV in einem Hibiscus-lesbaren Format
-    csv_records = HibiscusFormatter.format_data_frame(data_frame=data_frame)
-    with open(out_file_name, "w") as out_file:
-        out_file.write(csv_records)
+        # Ausgabe als CSV in einem Hibiscus-lesbaren Format
+        csv_records = HibiscusFormatter.format_data_frame(data_frame=data_frame)
+        out_file_name = f"{in_file_name}-{idx}.csv"
+        with open(out_file_name, "w") as out_file:
+            out_file.write(csv_records)
 
-    print(f"{len(data_frame)} Umsätze nach {out_file_name} geschrieben.")
+        print(f"{len(data_frame)} Umsätze nach {out_file_name} geschrieben.")
 
 else:
     print("This script is intended to run as main.")

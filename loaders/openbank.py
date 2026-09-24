@@ -55,7 +55,7 @@ class OpenbankTransactionHeaderFields:
 class OpenbankTransactionLoader(TransactionLoader):
 
     @staticmethod
-    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> list[pandas.DataFrame]:
         # Die Excel-Datei ist eigentlich eine HTML-Datei
         sheet: pandas.DataFrame = pandas.read_excel(file_name, skiprows=15, header=0, thousands=".", decimal=",")
         # Die letzte Zeile wird fehlerhaft eingelesen
@@ -103,4 +103,4 @@ class OpenbankTransactionLoader(TransactionLoader):
         # Ausgabe muss umgedreht werden (neueste zuletzt)
         sheet = sheet[::-1]
 
-        return sheet
+        return [sheet]

@@ -13,7 +13,7 @@ class KantineTransactionHeaderFields:
 
 class MenuebestellungTransactionLoader(TransactionLoader):
     @staticmethod
-    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
+    def load_transactions_from_file(file_name: str) -> list[pandas.DataFrame]:
 
         sheet: pandas.DataFrame = pandas.read_csv(file_name, sep=";", decimal=",")
 
@@ -25,4 +25,4 @@ class MenuebestellungTransactionLoader(TransactionLoader):
 
         # Ausgabe muss umgedreht werden (neueste zuletzt)
         sheet = sheet[::-1]
-        return sheet
+        return [sheet]

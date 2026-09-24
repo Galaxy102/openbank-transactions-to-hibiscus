@@ -36,12 +36,24 @@ class ParqetTransactionType(StrEnum):
 
 
 @dataclass
-class TransactionData:
-    datetime: datetime.datetime
+class TransactionDataAccount:
     date: _pydatetime.date
     amount: float
     vzw: str
     type: str
+
+@dataclass
+class TransactionDataOrder:
+    date: _pydatetime.date
+    holding_name: str
+    isin: str
+    wkn: str
+    transaction_type: ParqetTransactionType
+    shares: float
+    price: float
+    amount: float
+    tax: float
+    fee: float
 
 class ParqetTransactionLoader(TransactionLoader):
 
@@ -90,14 +102,13 @@ class ParqetTransactionLoader(TransactionLoader):
 
 
     @staticmethod
-    def __map_and_inject_entries(data: pandas.DataFrame) -> Generator[TransactionData]:
+    def __map_and_inject_entries_for_account(data: pandas.DataFrame) -> Generator[TransactionDataAccount]:
         for _, row in data.iterrows():
             transaction_type = ParqetTransactionLoader.__get_transaction_type(transaction_type=row[ParqetTransactionHeaderFields.TYPE], asset_type=row[ParqetTransactionHeaderFields.ASSETTYPE])
             if transaction_type in [ParqetTransactionType.TRANSFER_ASSET_OUT, ParqetTransactionType.TRANSFER_ASSET_IN]:
                 # These transactions do not occur on the current account
                 continue
-            yield TransactionData(
-                datetime=row[ParqetTransactionHeaderFields.DATETIME],
+            yield TransactionDataAccount(
                 date=row[ParqetTransactionHeaderFields.DATE],
                 amount=row[ParqetTransactionHeaderFields.AMOUNT] if transaction_type in [ParqetTransactionType.TRANSFER_CASH_IN, ParqetTransactionType.SELL] else -row["amount"],
                 vzw=ParqetTransactionLoader.__make_vzw(
@@ -112,8 +123,7 @@ class ParqetTransactionLoader(TransactionLoader):
                 type=transaction_type,
             )
             if row["tax"]:
-                yield TransactionData(
-                    datetime=row[ParqetTransactionHeaderFields.DATETIME],
+                yield TransactionDataAccount(
                     date=row[ParqetTransactionHeaderFields.DATE],
                     amount=-row[ParqetTransactionHeaderFields.TAX],
                     vzw=ParqetTransactionLoader.__make_vzw(
@@ -129,8 +139,7 @@ class ParqetTransactionLoader(TransactionLoader):
                     type=transaction_type,
                 )
             if row["fee"]:
-                yield TransactionData(
-                    datetime=row[ParqetTransactionHeaderFields.DATETIME],
+                yield TransactionDataAccount(
                     date=row[ParqetTransactionHeaderFields.DATE],
                     amount=-row[ParqetTransactionHeaderFields.FEE],
                     vzw=ParqetTransactionLoader.__make_vzw(
@@ -147,13 +156,37 @@ class ParqetTransactionLoader(TransactionLoader):
                 )
 
     @staticmethod
-    def load_transactions_from_file(file_name: str) -> pandas.DataFrame:
+    def __map_entries_for_orders(data: pandas.DataFrame) -> Generator[TransactionDataOrder]:
+        for _, row in data.iterrows():
+            transaction_type = ParqetTransactionLoader.__get_transaction_type(transaction_type=row[ParqetTransactionHeaderFields.TYPE], asset_type=row[ParqetTransactionHeaderFields.ASSETTYPE])
+            if transaction_type in [ParqetTransactionType.TRANSFER_CASH_IN, ParqetTransactionType.TRANSFER_CASH_OUT]:
+                # These transactions do not occur on the order book
+                continue
+            yield TransactionDataOrder(
+                date=row[ParqetTransactionHeaderFields.DATE],
+                holding_name=row[ParqetTransactionHeaderFields.HOLDINGNAME],
+                isin=row[ParqetTransactionHeaderFields.IDENTIFIER],
+                wkn=row[ParqetTransactionHeaderFields.WKN],
+                transaction_type=transaction_type,
+                shares=row[ParqetTransactionHeaderFields.SHARES],
+                price=row[ParqetTransactionHeaderFields.PRICE],
+                amount=row[ParqetTransactionHeaderFields.AMOUNT],
+                tax=row[ParqetTransactionHeaderFields.TAX],
+                fee=row[ParqetTransactionHeaderFields.FEE],
+            )
+
+
+
+    @staticmethod
+    def load_transactions_from_file(file_name: str) -> list[pandas.DataFrame]:
 
         sheet: pandas.DataFrame = pandas.read_csv(file_name, sep=";", decimal=",")
 
         # Ausgabe muss umgedreht werden (neueste zuletzt)
         sheet = sheet[::-1]
+        sheet[ParqetTransactionHeaderFields.DATE] = pandas.to_datetime(sheet[ParqetTransactionHeaderFields.DATE])
 
-        result = pandas.DataFrame(list(ParqetTransactionLoader.__map_and_inject_entries(data=sheet)))
+        result_account = pandas.DataFrame(list(ParqetTransactionLoader.__map_and_inject_entries_for_account(data=sheet)))
+        result_orders = pandas.DataFrame(list(ParqetTransactionLoader.__map_entries_for_orders(data=sheet)))
 
-        return result
+        return [result_account, result_orders]

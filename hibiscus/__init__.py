@@ -2,7 +2,7 @@ import csv
 
 import pandas
 
-_DATE_FORMAT_HIBISCUS = "%d.%m.%y"
+_DATE_FORMAT_HIBISCUS = "%d.%m.%Y"
 
 
 class HibiscusFormatter:
