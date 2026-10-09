@@ -31,6 +31,7 @@ class ParqetTransactionType(StrEnum):
     TRANSFER_ASSET_OUT = "Auslieferung"
     BUY = "Kauf"
     SELL = "Verkauf"
+    DIVIDEND = "Dividende"
     AUX_TAX = "Steuern"
     AUX_FEE = "Gebühr"
 
@@ -77,6 +78,8 @@ class ParqetTransactionLoader(TransactionLoader):
                         return ParqetTransactionType.BUY
                     case "Sell":
                         return ParqetTransactionType.SELL
+                    case "Dividend":
+                        return ParqetTransactionType.DIVIDEND
                 raise ValueError(f"Unbekannter Security-Transaktionstyp: {transaction_type}")
             case _:
                 raise ValueError(f"Unbekannter Asset-Typ: {asset_type}")
@@ -87,14 +90,10 @@ class ParqetTransactionLoader(TransactionLoader):
         if aux_transaction_type:
             result += f"{aux_transaction_type} zu "
         match transaction_type:
-            case ParqetTransactionType.TRANSFER_CASH_IN:
+            case ParqetTransactionType.TRANSFER_CASH_IN | ParqetTransactionType.TRANSFER_CASH_OUT:
                result += f"{transaction_type}: {notes}"
-            case ParqetTransactionType.TRANSFER_CASH_OUT:
-                result += f"{transaction_type}: {notes}"
-            case ParqetTransactionType.BUY:
-                result += f"{transaction_type}: {holding_name} ({wkn}, {isin})\n{shares:.4f}x {price:.4f} €"
-            case ParqetTransactionType.SELL:
-                result += f"{transaction_type}: {holding_name} ({wkn}, {isin})\n{shares:.4f}x {price:.4f} €"
+            case ParqetTransactionType.BUY | ParqetTransactionType.SELL | ParqetTransactionType.DIVIDEND:
+                result += f"{transaction_type}: {holding_name} ({wkn}, {isin}) – {shares:.4f}x {price:.4f} €"
             case _:
                 raise ValueError(f"Unbekannter Transaktionstyp: {transaction_type}")
 
@@ -110,7 +109,7 @@ class ParqetTransactionLoader(TransactionLoader):
                 continue
             yield TransactionDataAccount(
                 date=row[ParqetTransactionHeaderFields.DATE],
-                amount=row[ParqetTransactionHeaderFields.AMOUNT] if transaction_type in [ParqetTransactionType.TRANSFER_CASH_IN, ParqetTransactionType.SELL] else -row["amount"],
+                amount=row[ParqetTransactionHeaderFields.AMOUNT] if transaction_type in [ParqetTransactionType.TRANSFER_CASH_IN, ParqetTransactionType.SELL, ParqetTransactionType.DIVIDEND] else -row["amount"],
                 vzw=ParqetTransactionLoader.__make_vzw(
                     transaction_type=transaction_type,
                     holding_name=row[ParqetTransactionHeaderFields.HOLDINGNAME],
@@ -159,7 +158,7 @@ class ParqetTransactionLoader(TransactionLoader):
     def __map_entries_for_orders(data: pandas.DataFrame) -> Generator[TransactionDataOrder]:
         for _, row in data.iterrows():
             transaction_type = ParqetTransactionLoader.__get_transaction_type(transaction_type=row[ParqetTransactionHeaderFields.TYPE], asset_type=row[ParqetTransactionHeaderFields.ASSETTYPE])
-            if transaction_type in [ParqetTransactionType.TRANSFER_CASH_IN, ParqetTransactionType.TRANSFER_CASH_OUT]:
+            if transaction_type in [ParqetTransactionType.TRANSFER_CASH_IN, ParqetTransactionType.TRANSFER_CASH_OUT, ParqetTransactionType.DIVIDEND]:
                 # These transactions do not occur on the order book
                 continue
             yield TransactionDataOrder(
